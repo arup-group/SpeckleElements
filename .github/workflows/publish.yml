@@ -42,7 +42,7 @@ jobs:
     - name: Update AssemblyInfo
       run: |
         $tag = "${{ needs.createRelease.outputs.version }}.$($env:GITHUB_RUN_ID%65536)"
-        (Get-content .\SpeckleCoreGeometry\Properties\AssemblyInfo.cs) -replace '1\.0\.0\.0', $tag | Out-File -encoding ASCII .\SpeckleElements\Properties\AssemblyInfo.cs
+        (Get-content .\SpeckleElements\Properties\AssemblyInfo.cs) -replace '1\.0\.0\.0', $tag | Out-File -encoding ASCII .\SpeckleElements\Properties\AssemblyInfo.cs
 
     - name: setup-msbuild
       uses: microsoft/setup-msbuild@v1.0.2
