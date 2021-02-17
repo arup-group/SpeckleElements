@@ -90,8 +90,12 @@ namespace SpeckleElementsRevit
     {
       var myParamDict = new Dictionary<string, object>();
 
-      // Get params from the unique list
-      foreach (Parameter p in myElement.ParametersMap)
+      if (UnitDictionary == null)
+        Initialiser.UnitDictionary = new Dictionary<string, string>();
+
+
+        // Get params from the unique list
+        foreach (Parameter p in myElement.ParametersMap)
       {
         var keyName = SanitizeKeyname(p.Definition.Name);
         switch (p.StorageType)
@@ -175,9 +179,6 @@ namespace SpeckleElementsRevit
       //sort parameters
       myParamDict = myParamDict.OrderBy(obj => obj.Key).ToDictionary(obj => obj.Key, obj => obj.Value);
 
-
-      // myParamDict["__units"] = unitsDict;
-      // TODO: BIG CORE PROBLEM: failure to serialise things with nested dictionary (like the line above).
       return myParamDict;
     }
 
@@ -226,9 +227,6 @@ namespace SpeckleElementsRevit
       //sort parameters
       myParamDict = myParamDict.OrderBy(obj => obj.Key).ToDictionary(obj => obj.Key, obj => obj.Value);
 
-
-      // myParamDict["__units"] = unitsDict;
-      // TODO: BIG CORE PROBLEM: failure to serialise things with nested dictionary (like the line above).
       return myParamDict;
     }
 
@@ -237,8 +235,6 @@ namespace SpeckleElementsRevit
       // TODO: Set parameters please
       if (myElement == null) return;
       if (parameters == null) return;
-
-      var questForTheBest = UnitDictionary;
 
       foreach (var kvp in parameters)
       {
@@ -438,9 +434,11 @@ namespace SpeckleElementsRevit
     }
 
 
-    public static FamilySymbol GetFamilySymbolByFamilyNameAndTypeAndCategory(string familyName, string typeName, BuiltInCategory category)
+    public static FamilySymbol GetFamilySymbolByFamilyNameAndTypeAndCategory(string familyName, string typeName, List<BuiltInCategory> categories)
     {
-      var collectorElems = new FilteredElementCollector(Doc).WhereElementIsElementType().OfClass(typeof(FamilySymbol)).OfCategory(category).ToElements().Cast<FamilySymbol>();
+      var filter = new ElementMulticategoryFilter(categories);
+      var collectorElems = new FilteredElementCollector(Doc).WhereElementIsElementType().OfClass(typeof(FamilySymbol)).WherePasses(filter).ToElements().Cast<FamilySymbol>();
+
       return GetFamilySymbol(collectorElems, familyName, typeName);
     }
 
